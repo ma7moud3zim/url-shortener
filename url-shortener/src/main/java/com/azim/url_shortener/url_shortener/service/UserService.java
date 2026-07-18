@@ -3,7 +3,8 @@ package com.azim.url_shortener.url_shortener.service;
 import com.azim.url_shortener.url_shortener.entity.User;
 import com.azim.url_shortener.url_shortener.repository.UserRepository;
 import com.azim.url_shortener.url_shortener.security.JwtUtil;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -23,6 +23,18 @@ public class UserService implements UserDetailsService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+
+    public UserService(UserRepository userRepository,
+                        PasswordEncoder passwordEncoder,
+                        JwtUtil jwtUtil,
+                        @Lazy AuthenticationManager authenticationManager,
+                        EmailService emailService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+        this.emailService = emailService;
+    }
 
     // Spring Security calls this to load user by email
     @Override
