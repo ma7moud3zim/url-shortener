@@ -22,6 +22,17 @@ export class Dashboard implements OnInit {
   errorMessage = '';
   copiedCode: string | null = null;
 
+  // QR modal state
+  qrModalUrl: string | null = null;
+  qrCodeBase64: string | null = null;
+  isLoadingQr = false;
+
+  // Edit modal state
+  editingUrl: Url | null = null;
+  editValue = '';
+  isSavingEdit = false;
+  editError = '';
+
   constructor(
     private urlService: UrlService,
     private authService: AuthService,
@@ -76,6 +87,64 @@ export class Dashboard implements OnInit {
       this.copiedCode = shortCode;
       setTimeout(() => (this.copiedCode = null), 2000);
     });
+  }
+
+  // ---- QR code ----
+  openQrModal(shortCode: string): void {
+    this.qrModalUrl = shortCode;
+    this.isLoadingQr = true;
+    this.qrCodeBase64 = null;
+
+    this.urlService.getQrCode(shortCode).subscribe({
+      next: (base64) => {
+        this.qrCodeBase64 = base64;
+        this.isLoadingQr = false;
+      },
+      error: () => {
+        this.isLoadingQr = false;
+      },
+    });
+  }
+
+  closeQrModal(): void {
+    this.qrModalUrl = null;
+    this.qrCodeBase64 = null;
+  }
+
+  // ---- Edit ----
+  openEditModal(url: Url): void {
+    this.editingUrl = url;
+    this.editValue = url.originalUrl;
+    this.editError = '';
+  }
+
+  closeEditModal(): void {
+    this.editingUrl = null;
+    this.editValue = '';
+  }
+
+  saveEdit(): void {
+    if (!this.editingUrl) return;
+
+    this.isSavingEdit = true;
+    this.editError = '';
+
+    this.urlService
+      .editUrl(this.editingUrl.shortCode, { newOriginalUrl: this.editValue })
+      .subscribe({
+        next: (updatedUrl) => {
+          const index = this.urls.findIndex((u) => u.shortCode === updatedUrl.shortCode);
+          if (index !== -1) {
+            this.urls[index] = updatedUrl;
+          }
+          this.isSavingEdit = false;
+          this.closeEditModal();
+        },
+        error: (err) => {
+          this.editError = err.error?.error || 'Failed to update URL';
+          this.isSavingEdit = false;
+        },
+      });
   }
 
   logout(): void {

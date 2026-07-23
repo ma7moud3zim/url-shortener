@@ -114,6 +114,18 @@
                 {{ copiedCode === (url.customAlias || url.shortCode) ? 'Copied!' : 'Copy' }}
               </button>
               <button
+                (click)="openQrModal(url.customAlias || url.shortCode)"
+                class="text-sm px-3 py-1.5 rounded-lg border border-[#DCE4F5] text-[#0B1B4D] hover:bg-[#F7F9FC] transition"
+              >
+                QR
+              </button>
+              <button
+                (click)="openEditModal(url)"
+                class="text-sm px-3 py-1.5 rounded-lg border border-[#DCE4F5] text-[#0B1B4D] hover:bg-[#F7F9FC] transition"
+              >
+                Edit
+              </button>
+              <button
                 (click)="deleteUrl(url.shortCode)"
                 class="text-sm px-3 py-1.5 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition"
               >
@@ -125,4 +137,75 @@
       </div>
     }
   </div>
+
+  <!-- QR Code Modal -->
+  @if (qrModalUrl) {
+    <div
+      class="fixed inset-0 bg-[#0B1B4D]/40 backdrop-blur-sm flex items-center justify-center px-4 z-50"
+      (click)="closeQrModal()"
+    >
+      <div
+        class="bg-white rounded-2xl p-6 max-w-xs w-full text-center"
+        (click)="$event.stopPropagation()"
+      >
+        <h3 class="font-[Space_Grotesk] font-semibold text-[#0B1B4D] mb-4">Scan to open link</h3>
+
+        @if (isLoadingQr) {
+          <p class="text-[#64748B] text-sm py-8">Generating QR code...</p>
+        } @else if (qrCodeBase64) {
+          <img
+            [src]="'data:image/png;base64,' + qrCodeBase64"
+            alt="QR Code"
+            class="mx-auto rounded-lg"
+          />
+        }
+
+        <button
+          (click)="closeQrModal()"
+          class="mt-4 text-sm text-[#64748B] hover:text-[#0B1B4D] transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Edit Modal -->
+  @if (editingUrl) {
+    <div
+      class="fixed inset-0 bg-[#0B1B4D]/40 backdrop-blur-sm flex items-center justify-center px-4 z-50"
+      (click)="closeEditModal()"
+    >
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full" (click)="$event.stopPropagation()">
+        <h3 class="font-[Space_Grotesk] font-semibold text-[#0B1B4D] mb-4">Edit destination</h3>
+
+        <input
+          type="url"
+          [(ngModel)]="editValue"
+          name="editValue"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#F7F9FC] border border-[#DCE4F5] text-[#0B1B4D] focus:outline-none focus:ring-2 focus:ring-[#2554F0]/30 focus:border-[#2554F0] transition mb-3"
+        />
+
+        @if (editError) {
+          <p class="text-red-500 text-sm mb-3">{{ editError }}</p>
+        }
+
+        <div class="flex gap-2">
+          <button
+            (click)="saveEdit()"
+            [disabled]="isSavingEdit"
+            class="flex-1 bg-[#2554F0] hover:bg-[#1e46d1] disabled:bg-[#B8C6F5] text-white font-medium py-2.5 rounded-xl transition"
+          >
+            {{ isSavingEdit ? 'Saving...' : 'Save changes' }}
+          </button>
+          <button
+            (click)="closeEditModal()"
+            class="px-5 py-2.5 rounded-xl border border-[#DCE4F5] text-[#0B1B4D] hover:bg-[#F7F9FC] transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
