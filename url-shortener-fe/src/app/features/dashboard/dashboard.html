@@ -1,1 +1,128 @@
-<p>dashboard works!</p>
+<div class="min-h-screen bg-[#F7F9FC]">
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-[#DCE4F5] px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-[#2554F0] flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 01-5.656-5.656l1.5-1.5M10.172 13.828a4 4 0 010-5.656l3-3a4 4 0 015.656 5.656l-1.5 1.5"
+            />
+          </svg>
+        </div>
+        <span class="font-[Space_Grotesk] font-semibold text-[#0B1B4D]"
+          >U-<span class="text-[#2554F0]">Shortener</span></span
+        >
+      </div>
+      <button
+        (click)="logout()"
+        class="text-[#64748B] hover:text-[#0B1B4D] text-sm font-medium transition"
+      >
+        Log out
+      </button>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-6 py-10">
+    <!-- Shorten form -->
+    <div
+      class="bg-white rounded-2xl shadow-[0_1px_2px_rgba(11,27,77,0.04),0_16px_40px_rgba(11,27,77,0.08)] border border-[#DCE4F5] p-6 mb-8"
+    >
+      <h1 class="font-[Space_Grotesk] text-xl font-semibold text-[#0B1B4D] mb-4">Shorten a URL</h1>
+
+      <form (ngSubmit)="onShorten()" #shortenForm="ngForm" class="flex flex-col sm:flex-row gap-3">
+        <input
+          type="url"
+          name="originalUrl"
+          [(ngModel)]="newUrl.originalUrl"
+          required
+          placeholder="https://example.com/very-long-link"
+          class="flex-1 px-3.5 py-2.5 rounded-xl bg-[#F7F9FC] border border-[#DCE4F5] text-[#0B1B4D] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2554F0]/30 focus:border-[#2554F0] transition"
+        />
+        <input
+          type="text"
+          name="customAlias"
+          [(ngModel)]="newUrl.customAlias"
+          placeholder="custom-alias (optional)"
+          class="sm:w-56 px-3.5 py-2.5 rounded-xl bg-[#F7F9FC] border border-[#DCE4F5] text-[#0B1B4D] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2554F0]/30 focus:border-[#2554F0] transition font-[JetBrains_Mono] text-sm"
+        />
+        <button
+          type="submit"
+          [disabled]="!shortenForm.valid || isShortening"
+          class="bg-[#2554F0] hover:bg-[#1e46d1] disabled:bg-[#B8C6F5] disabled:cursor-not-allowed text-white font-medium px-6 py-2.5 rounded-xl transition shadow-sm shadow-[#2554F0]/20 whitespace-nowrap"
+        >
+          {{ isShortening ? 'Shortening...' : 'Shorten' }}
+        </button>
+      </form>
+
+      @if (errorMessage) {
+        <div
+          class="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-2.5 mt-3"
+        >
+          <svg
+            class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <p class="text-red-600 text-sm">{{ errorMessage }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- URL list -->
+    <h2 class="font-[Space_Grotesk] text-lg font-semibold text-[#0B1B4D] mb-4">Your links</h2>
+
+    @if (isLoading) {
+      <p class="text-[#64748B] text-sm">Loading your links...</p>
+    } @else if (urls.length === 0) {
+      <div class="bg-white rounded-2xl border border-dashed border-[#DCE4F5] p-10 text-center">
+        <p class="text-[#64748B]">You haven't shortened any links yet.</p>
+      </div>
+    } @else {
+      <div class="space-y-3">
+        @for (url of urls; track url.id) {
+          <div
+            class="bg-white rounded-xl border border-[#DCE4F5] p-4 flex items-center justify-between gap-4"
+          >
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span
+                  class="font-[JetBrains_Mono] text-sm bg-[#00C2A8]/10 text-[#00806E] px-2 py-0.5 rounded-md"
+                >
+                  /{{ url.customAlias || url.shortCode }}
+                </span>
+              </div>
+              <p class="text-[#64748B] text-sm truncate">{{ url.originalUrl }}</p>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button
+                (click)="copyToClipboard(url.customAlias || url.shortCode)"
+                class="text-sm px-3 py-1.5 rounded-lg border border-[#DCE4F5] text-[#0B1B4D] hover:bg-[#F7F9FC] transition"
+              >
+                {{ copiedCode === (url.customAlias || url.shortCode) ? 'Copied!' : 'Copy' }}
+              </button>
+              <button
+                (click)="deleteUrl(url.shortCode)"
+                class="text-sm px-3 py-1.5 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
