@@ -1,1 +1,142 @@
-<p>register works!</p>
+<div
+  class="min-h-screen bg-[#F7F9FC] flex items-center justify-center px-4 relative overflow-hidden"
+>
+  <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#2554F0]/5 rounded-full blur-3xl"></div>
+  <div class="absolute -bottom-32 -left-24 w-96 h-96 bg-[#00C2A8]/5 rounded-full blur-3xl"></div>
+
+  <div class="relative w-full max-w-md">
+    <div class="flex items-center justify-center gap-2 mb-8">
+      <div class="w-9 h-9 rounded-lg bg-[#2554F0] flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 01-5.656-5.656l1.5-1.5M10.172 13.828a4 4 0 010-5.656l3-3a4 4 0 015.656 5.656l-1.5 1.5"
+          />
+        </svg>
+      </div>
+      <span class="font-[Space_Grotesk] font-semibold text-lg text-[#0B1B4D]"
+        >U-<span class="text-[#2554F0]">Shortener</span></span
+      >
+    </div>
+
+    <div
+      class="bg-white rounded-2xl shadow-[0_1px_2px_rgba(11,27,77,0.04),0_16px_40px_rgba(11,27,77,0.08)] border border-[#DCE4F5] p-8"
+    >
+      @if (successMessage) {
+        <div class="text-center py-4">
+          <div
+            class="w-12 h-12 bg-[#00C2A8]/10 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg
+              class="w-6 h-6 text-[#00C2A8]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h2 class="font-[Space_Grotesk] text-xl font-semibold text-[#0B1B4D] mb-2">
+            Check your inbox
+          </h2>
+          <p class="text-[#64748B] text-sm">{{ successMessage }}</p>
+        </div>
+      } @else {
+        <h1 class="font-[Space_Grotesk] text-2xl font-semibold text-[#0B1B4D] mb-1">
+          Create your account
+        </h1>
+        <p class="text-[#64748B] text-sm mb-7">Start shortening links in seconds</p>
+
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="space-y-5">
+          <div>
+            <label class="block text-[#0B1B4D] text-sm font-medium mb-1.5" for="username"
+              >Username</label
+            >
+            <input
+              type="text"
+              id="username"
+              name="username"
+              [(ngModel)]="request.username"
+              required
+              placeholder="johndoe"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-[#F7F9FC] border border-[#DCE4F5] text-[#0B1B4D] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2554F0]/30 focus:border-[#2554F0] transition"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[#0B1B4D] text-sm font-medium mb-1.5" for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="request.email"
+              required
+              email
+              placeholder="you@example.com"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-[#F7F9FC] border border-[#DCE4F5] text-[#0B1B4D] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2554F0]/30 focus:border-[#2554F0] transition"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[#0B1B4D] text-sm font-medium mb-1.5" for="password"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="request.password"
+              required
+              minlength="8"
+              placeholder="At least 8 characters"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-[#F7F9FC] border border-[#DCE4F5] text-[#0B1B4D] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2554F0]/30 focus:border-[#2554F0] transition"
+            />
+          </div>
+
+          @if (errorMessage) {
+            <div
+              class="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-2.5"
+            >
+              <svg
+                class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <p class="text-red-600 text-sm">{{ errorMessage }}</p>
+            </div>
+          }
+
+          <button
+            type="submit"
+            [disabled]="!registerForm.valid || isLoading"
+            class="w-full bg-[#2554F0] hover:bg-[#1e46d1] disabled:bg-[#B8C6F5] disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-xl transition shadow-sm shadow-[#2554F0]/20"
+          >
+            {{ isLoading ? 'Creating account...' : 'Create account' }}
+          </button>
+        </form>
+      }
+    </div>
+
+    @if (!successMessage) {
+      <p class="text-[#64748B] text-center mt-6 text-sm">
+        Already have an account?
+        <a routerLink="/login" class="text-[#2554F0] font-medium hover:underline">Sign in</a>
+      </p>
+    }
+  </div>
+</div>
