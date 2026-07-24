@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Url, ShortenRequest, EditUrlRequest } from '../models/url.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UrlService {
-  private readonly apiUrl = 'http://localhost:8080/api/urls';
-
+  private readonly apiUrl = `${environment.apiUrl}/api/auth`;
   constructor(private http: HttpClient) {}
 
   shorten(request: ShortenRequest): Observable<Url> {
